@@ -32,6 +32,20 @@ Ensure you have the following installed on your machine:
 * **Python 3.10+** (if running ingestion or seeding scripts on the host)
 
 ---
+## 📥 Model Downloads Setup
+
+Because machine learning model weights are too large to be stored on GitHub, they are excluded from this Git repository. You **must** download them and place them in the correct directory before running the application:
+
+1. **Download `model_555.pt` (CLIP fine-tuned color classifier)**:
+   * **Source URL**: [Download via Google Drive](https://drive.google.com/file/d/1C-0v1QJ74TW6ztl6nJ3J4NzmKks7WW4_/view)
+   * **Target Path**: `ai_service/models/model_555.pt`
+2. **Download `SOTA_hybrid_model.pth` (SOTA Hybrid ViT Recommender)**:
+   * **Source URL**: [Download via Google Drive](https://drive.google.com/file/d/17uNRWQc_8uWLxJ5-qg9mPUmpjk5C1lq6/view)
+   * **Target Path**: `ai_service/models/SOTA_hybrid_model.pth`
+
+*(Make sure you create the `ai_service/models/` folder if it doesn't already exist, and place both files directly inside it).*
+
+---
 
 ## ⚡ Quick Start: Running with Docker
 
