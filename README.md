@@ -143,8 +143,3 @@ Verify that:
 
 ### 2. Search returns 0 results
 Run `python scripts/repopulate_db.py` in the `ai_service` directory to ensure that product IDs in MongoDB align with the FAISS vector indices mapping.
-
----
-
-## 📄 License
-This project is licensed under the MIT License.
