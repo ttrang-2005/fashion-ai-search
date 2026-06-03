@@ -1,0 +1,78 @@
+services:
+  # 1. MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: fashion_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # 2. Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: fashion_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # 3. Python AI FastAPI Service
+  ai_service:
+    build: ./ai_service
+    container_name: fashion_ai_service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount large model files and data index from host to keep container size small
+      - ./ai_service/models:/app/models
+      - ./ai_service/data:/app/data
+      # Mount cache folders to persist HuggingFace and PyTorch downloads
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+
+  # 4. Node.js Express Backend Service
+  backend:
+    build: ./backend
+    container_name: fashion_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongodb:27017/fashion_db
+      - REDIS_URL=redis://redis:6379
+      - AI_SERVICE_URL=http://ai_service:8000
+      - CLOTHES_IMAGES_PATH=/app/clothesimages
+      - WOMEN_IMAGES_PATH=/app/women
+    volumes:
+      # Mount images folder from root workspace folder
+      - ../clothesimages:/app/clothesimages
+      - ../women:/app/women
+      # Mount ai_service data for database seeding
+      - ./ai_service/data:/app/ai_service/data:ro
+    depends_on:
+      - mongodb
+      - redis
+      - ai_service
+
+  # 5. React Frontend Served by Nginx Proxy
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api/v1
+        - VITE_IMAGE_BASE_URL=
+    container_name: fashion_frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  hf_cache:
+  torch_cache:
